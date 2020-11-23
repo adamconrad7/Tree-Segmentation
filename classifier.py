@@ -99,11 +99,7 @@ def main():
         metrics = ['accuracy']
     )
 
-    history = model.fit(x_train,
-                        y_train,
-                        epochs = 100,
-                        validation_split=validation_split
-                        )
+    history = model.fit(x_train, y_train, epochs = 100, validation_split=validation_split)
 
     print("Evaluating: \n\n\n")
     metrics = model.evaluate(x_test, y_test)
@@ -114,8 +110,8 @@ def main():
     disp = disp.plot(cmap='gray')
     plt.show()
 
-    # if metrics[1] > .985:
-    #     model.save('model/')
+    if metrics[1] > .985:
+        model.save('model/')
 
 
 
