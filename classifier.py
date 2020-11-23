@@ -67,10 +67,16 @@ def main():
     labels = data[1]
 
 ## Remove excess objects, might fail if file structure differs
+    #print(ims)
+    #print(labels[199:])
+    ims = np.delete(ims, np.s_[225:], 0)
     ims = np.delete(ims, np.s_[119:175], 0)
     ims = np.delete(ims, np.s_[0:19], 0)
+    labels = np.delete(labels, np.s_[225:])
     labels = np.delete(labels, np.s_[119:175])
     labels = np.delete(labels, np.s_[0:19])
+    #print(ims)
+    #print(labels)
 
 ##  Makes string labels into ints
     lookupTable0, idx,  labels, counts = np.unique(labels, return_inverse=True, return_counts=True, return_index=True)
@@ -94,7 +100,7 @@ def main():
         keras.layers.Dense(100, activation = 'relu' ),
         keras.layers.Dense(100, activation = 'relu' ),
         keras.layers.Dense(100, activation = 'relu' ),
-        keras.layers.Dense(5, activation = 'softmax' )])
+        keras.layers.Dense(6, activation = 'softmax' )])
 
     model.compile(loss = tf.keras.losses.SparseCategoricalCrossentropy(),
         # optimizer = 'RMSprop',  #.9-.97
@@ -104,11 +110,7 @@ def main():
         metrics = ['accuracy']
     )
 
-    history = model.fit(x_train,
-                        y_train,
-                        epochs = 100,
-                        validation_split=validation_split
-                        )
+    history = model.fit(x_train, y_train, epochs = 100, validation_split=validation_split)
 
     print("Evaluating: \n\n\n")
     metrics = model.evaluate(x_test, y_test)
@@ -133,8 +135,8 @@ def main():
 
     plt.show()
 
-    # if metrics[1] > .985:
-    #     model.save('model/')
+    if metrics[1] > .985:
+        model.save('model/')
 
 
 
