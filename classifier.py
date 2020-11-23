@@ -8,7 +8,6 @@ import os
 from os import listdir
 from tifffile import imread, imwrite
 import random
-# from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 
 
@@ -41,7 +40,9 @@ def read_segs(path):
     labels = []
     for classname in listdir(path):
         classpath = os.path.join(path, classname)
-        for file in listdir(classpath):
+        for i, file in enumerate(listdir(classpath)):
+            if(i >= 25):
+                break
             seg = imread(os.path.join(classpath, file))
             ims.append(seg)
             labels.append(classname)
@@ -66,14 +67,8 @@ def main():
     ims = data[0]
     labels = data[1]
 
-## Remove excess objects, might fail if file structure differs
-    ims = np.delete(ims, np.s_[119:175], 0)
-    ims = np.delete(ims, np.s_[0:19], 0)
-    labels = np.delete(labels, np.s_[119:175])
-    labels = np.delete(labels, np.s_[0:19])
-
 ##  Makes string labels into ints
-    lookupTable0, idx,  labels, counts = np.unique(labels, return_inverse=True, return_counts=True, return_index=True)
+    lookupTable, idx,  labels, counts = np.unique(labels, return_inverse=True, return_counts=True, return_index=True)
 
 ## Adds data
     x, y = augment(ims, labels)
@@ -94,8 +89,8 @@ def main():
         keras.layers.Dense(100, activation = 'relu' ),
         keras.layers.Dense(100, activation = 'relu' ),
         keras.layers.Dense(100, activation = 'relu' ),
-        keras.layers.Dense(5, activation = 'softmax' )])
-
+        keras.layers.Dense(len(lookupTable), activation = 'softmax' )])
+    #
     model.compile(loss = tf.keras.losses.SparseCategoricalCrossentropy(),
         # optimizer = 'RMSprop',  #.9-.97
         # optimizer = 'Adam',     #.95-.97
@@ -112,25 +107,11 @@ def main():
 
     print("Evaluating: \n\n\n")
     metrics = model.evaluate(x_test, y_test)
-    print(metrics[1])
 
     y_pred = model.predict_classes(x_test)
-    # print(y_pred.shape)
     cm = confusion_matrix(y_true=y_test, y_pred=y_pred.round(), normalize='true')
-    print(lookupTable0)
-    # confusion_matrix = sklearn.metrics.confusion_matrix(y_test, np.rint(y_pred))
-    # print(cm)
-    # plot_confusion_matrix(model, x_test, y_test)  # doctest: +SKIP
-    # plt.show()
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm,
-                                      display_labels=lookupTable0,
-
-                                      )
-
-
-    # NOTE: Fill all variables here with default values of the plot_confusion_matrix
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=lookupTable)
     disp = disp.plot(cmap='gray')
-
     plt.show()
 
     # if metrics[1] > .985:
