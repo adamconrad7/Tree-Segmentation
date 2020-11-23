@@ -8,6 +8,10 @@ import os
 from os import listdir
 from tifffile import imread, imwrite
 import random
+# from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+
+
 
 def augment(ims, labs):
 
@@ -52,8 +56,8 @@ def main():
 ## path to labeled sets
     path = 'training/'
 
-## 90% of data for training
-    train_test_split = .9
+## 80% of data for training
+    train_test_split = .8
 
 ## 10% of training data for validation
     validation_split = .1
@@ -102,12 +106,36 @@ def main():
 
     history = model.fit(x_train,
                         y_train,
-                        epochs = 50,
+                        epochs = 100,
                         validation_split=validation_split
                         )
 
     print("Evaluating: \n\n\n")
-    model.evaluate(x_test, y_test)
+    metrics = model.evaluate(x_test, y_test)
+    print(metrics[1])
+
+    y_pred = model.predict_classes(x_test)
+    # print(y_pred.shape)
+    cm = confusion_matrix(y_true=y_test, y_pred=y_pred.round(), normalize='true')
+    print(lookupTable0)
+    # confusion_matrix = sklearn.metrics.confusion_matrix(y_test, np.rint(y_pred))
+    # print(cm)
+    # plot_confusion_matrix(model, x_test, y_test)  # doctest: +SKIP
+    # plt.show()
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm,
+                                      display_labels=lookupTable0,
+
+                                      )
+
+
+    # NOTE: Fill all variables here with default values of the plot_confusion_matrix
+    disp = disp.plot(cmap='gray')
+
+    plt.show()
+
+    # if metrics[1] > .985:
+    #     model.save('model/')
+
 
 
 main()
