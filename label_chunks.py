@@ -5,7 +5,15 @@ from os.path import isfile, join
 import numpy as np
 import os
 
+import cv2
+def downscale(img, scale_percent):
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    # print("dim: ", width, height)
 
+    r = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+    return r
 
 def crop(img, x, y, dim):
     return img[y:y+dim, x:x+dim]
@@ -63,7 +71,7 @@ def main():
     dim: size of chunk side (I think 2 is what we want?)
     '''
 
-    path = "data/plantation1.tif"
+    path = "D:/College Documents/Senior Design/Mac_1120_UTM.tif"
     dest = "training/<your_class>/"
     mode = 1
     dim = 2
@@ -99,6 +107,8 @@ def main():
 
     if mode == 1:
         f, axes = plt.subplots(1,1)
+        rgb = downscale(rgb, 20)
+        rgb = (rgb/256).astype('uint8') #for plantation 3 color depth
         axes.imshow(rgb)
         plt.show()
 
