@@ -6,6 +6,8 @@ from tensorflow import keras
 import sys
 from matplotlib import colors
 import matplotlib.pyplot as plt
+
+from scipy import ndimage
 #from treeSeg import chunkify
 
 #returns and displays cropped image
@@ -45,8 +47,10 @@ def plot_color(matrix):
     bounds = [0, 1, 2, 3, 4, 5] #for the 0-5 classes (?)
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
+    blurred = ndimage.median_filter(matrix, size=7) #filters noise out of classification - removes lone class boxes
+
     fig, ax = plt.subplots()
-    ax.imshow(matrix)
+    ax.imshow(blurred)
 
     # draw gridlines
     ax.grid(which='major', axis='both', color='k')
@@ -70,7 +74,7 @@ def main():
     rgb0 = imread(path)
 
     cropped = crop(rgb0, 3500, 500, 200, 200) #x coord, y coord, x length, y length
-    #3500, 500, 1500, 1500
+    #og: 3500, 500, 200, 200 //1500, 1500
 
     #cropped = np.array(cropped)
     #print(len(cropped))
@@ -82,7 +86,9 @@ def main():
     print(len(test[0]))
     #print(len(test))
 
-    model = keras.models.load_model('model/model_1.h5') #load model saved from classifier.py
+    model = keras.models.load_model('model/') #load model saved from classifier.py
+    #model = keras.models.load_model('model/model_1.h5') #load model saved from classifier.py
+
 
     y_pred = model.predict_classes(test) #run classifier on the 4 pixel chunks, returns numerical class prediction for each chunk
     print(y_pred.shape)
