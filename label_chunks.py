@@ -72,8 +72,8 @@ def main():
     '''
 
     path = "D:/College Documents/Senior Design/Mac_1120_UTM.tif"
-    dest = "training/<your_class>/"
-    mode = 2
+    dest = "training/plantation3/<your_class>/"
+    mode = 3
     dim = 2
     coords = [(2173, 1618),
 (2192, 1618),
