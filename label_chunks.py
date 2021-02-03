@@ -5,13 +5,29 @@ from os.path import isfile, join
 import numpy as np
 import os
 
+import cv2
+def downscale(img, scale_percent):
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    # print("dim: ", width, height)
 
+    r = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+    return r
 
 def crop(img, x, y, dim):
     return img[y:y+dim, x:x+dim]
 
+def crop_centered(img, x, y, dim): #dim is total height (must be even)
+    return img[int(y-(dim/2)):int(y+(dim/2)), int(x-(dim/2)):int(x+(dim/2))]
+
 def crop_and_write(img, x, y, dim, dest):
     new = img[y:y+dim, x:x+dim]
+    imwrite(dest + str(x) + ',' + str(y) + '.tif', new)
+    return new
+
+def crop_and_write_centered(img, x, y, dim, dest):
+    new = img[int(y-(dim/2)):int(y+(dim/2)), int(x-(dim/2)):int(x+(dim/2))]
     imwrite(dest + str(x) + ',' + str(y) + '.tif', new)
     return new
 
@@ -63,39 +79,44 @@ def main():
     dim: size of chunk side (I think 2 is what we want?)
     '''
 
-    path = "data/plantation1.tif"
-    dest = "training/<your_class>/"
-    mode = 1
-    dim = 2
-    coords = [
-        (1665, 1919),
-        (1774, 2563),
-        (3667, 1719),
-        (1978, 3244),
-        (3325, 2494),
-        (3542, 2778),
-        (3429, 11608),
-        (3582, 12009),
-        (3674, 12536),
-        (3927, 12873),
-        (3945, 12962),
-        (4103, 13282),
-        (5127, 361),
-        (6480, 741),
-        (6430, 1955),
-        (2989, 6105),
-        (4265, 6031),
-        (3421, 5820),
-        (3419, 5984),
-        (1012, 3867),
-        (1975, 3357),
-        (1046, 4607),
-        (1466, 4047),
-        (1251, 5213),
-        (1554, 3849)
-    ]
+    path = "D:/College Documents/Senior Design/Mac_1120_UTM.tif"
+    dest = "training/plantation3/<your_class>/"
+    mode = 3
+    dim = 30
+    coords = [(9406, 8965),
+(9619, 8894),
+(9821, 9268),
+(9320, 9204),
+(9538, 9389),
+(10001, 10239),
+(9803, 10259),
+(10106, 9671),
+(9853, 9609),
+(10070, 9808),
+(3083, 3975),
+(2943, 4010),
+(3210, 4086),
+(3154, 3807),
+(3380, 4143),
+(2442, 4174),
+(2349, 4041),
+(2224, 3949),
+(2709, 4319),
+(2636, 4379),
+(2623, 3773),
+(7994, 5511),
+(8045, 5440),
+(8466, 5218),
+(8593, 5481),
+(8759, 5408),
+(9053, 5501),
+(8968, 5182),
+(8132, 6211),
+(8333, 6213)]
 
     rgb = imread(path)
+    #rgb = downscale(rgb, 20) #for plantation 3's size
+    rgb = (rgb/256).astype('uint8') #for plantation 3 color depth
 
     if mode == 1:
         f, axes = plt.subplots(1,1)
@@ -127,12 +148,13 @@ def main():
     elif mode == 2:
         segs = []
         for coord in coords:
-            cropped = crop(rgb, coord[0], coord[1], 2)
+            #cropped = crop(rgb, coord[0], coord[1], 2)
+            cropped = crop_centered(rgb, coord[0], coord[1], 30)
             segs.append(cropped)
         verify_chunks(segs)
     else:
         for coord in coords:
-            crop_and_write(rgb, coord[0], coord[1], 2, dest)
+            crop_and_write_centered(rgb, coord[0], coord[1], 30, dest)
 
 
 main()
