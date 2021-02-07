@@ -23,6 +23,8 @@ from tensorflow import keras
 from sklearn.cluster import KMeans
 from skimage.color import rgb2hsv
 import os
+from os import listdir
+
 model = keras.models.load_model('model/')
 
 
@@ -125,20 +127,82 @@ def k_means(im):
     # return
     return pic
 
+def read_segs(path):
+    ims = []
+    labels = []
+    for classname in listdir(path):
+        classpath = os.path.join(path, classname)
+        for i, file in enumerate(listdir(classpath)):
+            # if(i == 16):
+                # continue
+            # if i > 163:
+                # break
+            seg = imread(os.path.join(classpath, file))
+            ims.append(seg)
+            labels.append(classname)
+
+    tup = [np.array(ims), np.array(labels)]
+    return tup
 
 def main():
 
 ## Path to data
- path = "data/plantation1.tif"
+ # path = "data/plantation1.tif"
+ path = "data/Mac_1120_medium_012021.tif"
+
 
 ## Percent of data to use
- downscale_percent = 30
+ downscale_percent = 100
 ## Arbitrary scaling factor for Felzenszwalb segmentation, lower is more accurate and slower
  segment_size_factor = 20
 
 ## Read data and downscale for faster proccessing
  rgb0 = imread(path)
- rgb = downscale(rgb0[:int(rgb0.shape[0]/3), int(rgb0.shape[1]/3):], downscale_percent)
+ rgb0 = (rgb0/256).astype('uint8') #for plantation 3 color depth
+ # rgb = downscale(rgb0[:int(rgb0.shape[0]/3), int(rgb0.shape[1]/3):], downscale_percent)
+ rgb = downscale(rgb0, downscale_percent)
+
+ # segs = read_segs('big_chunks/sapling')
+ # segs = segs[0]
+ #
+
+ allsegs = []
+ classpath = 'big_chunks/sapling'
+ # for file in listdir('big_chunks/sapling'):
+ #     seg = imread(os.path.join(classpath, file))
+ #     allsegs.append(seg)
+
+     # print(file)
+ # allsegs = np.array(allsegs)
+ # print(allsegs.shape)
+
+ # print(allsegs[0].shape)
+ # segs = allsegs
+ # segs.append(allsegs[30])
+ #
+ # segs.append(allsegs[31])
+ # segs.append(allsegs[32])
+ # segs.append(allsegs[33])
+ # segs.append(allsegs[34])
+ #
+ #
+ # segs.append(allsegs[37])
+
+ # print(len(segs))
+
+ # segs.append()
+ # ncols = 10
+ #
+ # fig, axs = plt.subplots(int(len(segs) /  ncols), ncols)
+ # axs = axs.flatten()
+ # for img, ax in zip(segs, axs):
+ #      ax.imshow(img)
+ #      ax.set_xticks([])
+ #      ax.set_yticks([])
+
+ fig, axs = plt.subplots()
+ axs.imshow(rgb)
+ plt.show()
 
  # tiles = chunkify(rgb, 2)
  # segs = get_data(tiles, 49)
@@ -167,33 +231,46 @@ def main():
 #    0       1       2      3       4
 
  # seg = k_means(rgb[...,:-1])
- labels1 = seg.slic(rgb[...,:-1], compactness=1, n_segments=6,  convert2lab=True, enforce_connectivity=False)
- lookupTable, idx,  labels, counts = np.unique(labels1, return_inverse=True, return_counts=True, return_index=True)
- print("Lookup table: ",lookupTable, '\n')
- print("Indecies: ",idx, '\n')
- print("labels: ",labels, '\n')
- print("counts: ",counts, '\n')
- print("n pixels: ", rgb.shape[0]*rgb.shape[1])
- # print("n regions?: ", len(labels))
- # print("n regions?: ", len(idx))
- print("n regions: ", len(counts))
+ # labels1 = seg.slic(rgb[...,:-1], compactness=1, n_segments=6,  convert2lab=True, enforce_connectivity=False)
+ # lookupTable, idx,  labels, counts = np.unique(labels1, return_inverse=True, return_counts=True, return_index=True)
+ # print("Lookup table: ",lookupTable, '\n')
+ # print("Indecies: ",idx, '\n')
+ # print("labels: ",labels, '\n')
+ # print("counts: ",counts, '\n')
+ # print("n pixels: ", rgb.shape[0]*rgb.shape[1])
+ # # print("n regions?: ", len(labels))
+ # # print("n regions?: ", len(idx))
+ # print("n regions: ", len(counts))
+ # print(labels1.shape)
+ #
+ #
+ # mask = np.zeros(rgb.shape[:2], dtype = "uint8")
+ # mask[labels1 == 0] = 255
+ # f, axarr = plt.subplots(1,1)
+ # axarr.imshow(cv2.bitwise_and(rgb, rgb, mask = mask))
+ # plt.show()
+ # for (i, segVal) in enumerate(np.unique(labels1)):
+ #    mask = np.zeros(rgb.shape[:2], dtype = "uint8")
+ #    mask[labels1 == segVal] = 255
+ #    axarr[i].imshow(cv2.bitwise_and(rgb, rgb, mask = mask))
+ #
 
 
- print(labels1.shape)
  # slic= color.label2rgb(labels1, rgb, kind='avg')
  # slic= labels1
  #
  # slices = find_objects(slic)
  # print(objs)
- for (i, segVal) in enumerate(np.unique(labels1)):
-	# construct a mask for the segment
-        # print "[x] inspecting segment %d" % (i)
-    	mask = np.zeros(rgb.shape[:2], dtype = "uint8")
-    	mask[labels1 == segVal] = 255
-    	# show the masked region
-    	cv2.imshow("Mask", mask)
-    	cv2.imshow("Applied", cv2.bitwise_and(rgb, rgb, mask = mask))
-    	cv2.waitKey(0)
+
+ # for (i, segVal) in enumerate(np.unique(labels1)):
+	# # construct a mask for the segment
+ #        # print "[x] inspecting segment %d" % (i)
+    	# mask = np.zeros(rgb.shape[:2], dtype = "uint8")
+    	# mask[labels1 == segVal] = 255
+ #    	# show the masked region
+ #    	cv2.imshow("Mask", mask)
+ #    	cv2.imshow("Applied", cv2.bitwise_and(rgb, rgb, mask = mask))
+ #    	cv2.waitKey(0)
 
  # numobjects = 60000
  #
@@ -255,14 +332,14 @@ def main():
  # )
 
 ## Display results
- f, axarr = plt.subplots(1,3)
- axarr[0].imshow(rgb)
- axarr[1].imshow(slic)
- axarr[2].imshow(objs[0])
+ # f, axarr = plt.subplots(1,3)
+ # axarr[0].imshow(rgb)
+ # axarr[1].imshow(labels1)
+ # axarr[2].imshow(cv2.bitwise_and(rgb, rgb, mask = mask))
 
  #
  print("--- %s seconds ---" % (time.time() - start_time))
- plt.show()
+ # plt.show()
 
 main()
 
