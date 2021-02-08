@@ -55,7 +55,7 @@ def main():
 ##    https://medium.com/@sandy_lee/how-to-train-neural-networks-for-image-classification-part-1-21327fe1cc1
 
 ## path to labeled sets
-    path = 'training/'
+    path = 'plant3/'
 
 ## 80% of data for training
     train_test_split = .8
@@ -84,7 +84,7 @@ def main():
     x_train, x_test = x_train/ 255., x_test/ 255.
 
 ## Neural net, copied structure from tutorial
-    model = keras.models.Sequential([keras.layers.Flatten(input_shape = [2,2,4]),
+    model = keras.models.Sequential([keras.layers.Flatten(input_shape = [30,30,4]), #keras.layers.Flatten(input_shape = [2,2,4]
         keras.layers.Dense(300, activation = 'relu' ),
         keras.layers.Dense(100, activation = 'relu' ),
         keras.layers.Dense(100, activation = 'relu' ),
