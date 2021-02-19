@@ -79,12 +79,13 @@ def main():
     #cropped = np.array(cropped)
     #print(len(cropped))
     #print(len(cropped[0]))
-    
+    print('len of cropped: ' + str(len(cropped)))
+    print('len of cropped[0]: ' + str(len(cropped[0])))
     test = get_rgbs(cropped) #nparray (2x2x4) of rgb in 4 pixel chunks 
+    print('len of test: ' + str(len(test)))
+    print('len of test[0]: ' + str(len(test[0])))
+    print('test[0]: ', end='')
     print(test[0])
-    #print(test[0][0])
-    print(len(test[0]))
-    #print(len(test))
 
     model = keras.models.load_model('model/') #load model saved from classifier.py
     #model = keras.models.load_model('model/model_1.h5') #load model saved from classifier.py
