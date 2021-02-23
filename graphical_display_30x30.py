@@ -57,8 +57,8 @@ def plot_color(matrix, by_x, by_y):
 
     # draw gridlines
     ax.grid(which='major', axis='both', color='k')
-    ax.set_xticks(np.arange(0, by_x, 1)) #change with size of cropped image
-    ax.set_yticks(np.arange(0, by_y, 1)) #change with size of cropped image
+    ax.set_xticks(np.arange(0, by_x, 5)) #change with size of cropped image
+    ax.set_yticks(np.arange(0, by_y, 5)) #change with size of cropped image
 
     plt.show()
 
@@ -69,28 +69,47 @@ def manual_as_matrix(classes, x, y):
     print(mat)
     return mat
 
-def get_sapling_indices(matrix):
+def get_sapling_indices(matrix, start_x, start_y):
     inds = np.where(matrix == 2) #[0] is the list of row indexes, [1] is the list of column indexes
     print(inds)
-    mat_coords = list(zip(inds[0], inds[1]))
-    print(mat_coords)
-    print("number of saplings: " + str(len(mat_coords)))
-    #for c in mat_coords:
+    xs = inds[0]
+    ys = inds[1]
+    #print(inds[0])
+    #print(type(inds[0]))
+    #convert coordinates from row column, to pixels in image
+    xs = (xs * 30) + start_x + 15 #*30 to get to correct box, +start to get to correct region, +15 to set coordinate at middle of 30x30 box
+    ys = (ys * 30) + start_y + 15
+    print(inds)
+    img_coords = list(zip(xs, ys))
+    int_coords = list(zip(inds[0], inds[1]))
+    print(img_coords)
+    print("number of saplings: " + str(len(img_coords)))
+    for c in img_coords:
         #print(type(c))
-        #print('(' + str(c[0]) + ', ' + str(c[1]) + ')')
+        print('(' + str(c[0]) + ', ' + str(c[1]) + ')')
         #print(matrix.item(c))
         #print(matrix[c[0]][c[1]])
-    return mat_coords
+    return img_coords, int_coords
+
+def mark_saplings(cropped, mat_coords, i_coords, x, y):
+    for c in mat_coords:
+        print('(' + str(c[0]-x) + ', ' + str(c[1]-y) + ')')
+        image = cv2.circle(cropped, (c[1]-y,c[0]-x), radius=5, color=(0, 0, 255), thickness=-1)
+    
+    cv2.imshow("sapling_labeled", image) #shows the cropped section
+    cv2.waitKey(0)
 
 def main():
     ## Path to data
     path = "D:/College Documents/Senior Design/Mac_1120_UTM.tif" #"data/plantation1.tif"
     ## Read data
     rgb0 = imread(path)
-    width = 300
-    height = 300
+    width = 900 #must be divisible by 30 for now
+    height = 900 #must be divisible by 30 for now
     dim = 30
-    cropped = crop(rgb0, 2220, 3900, width, height) #x coord, y coord, x length, y length
+    x = 2205
+    y = 3885
+    cropped = crop(rgb0, x, y, width, height) #x coord, y coord, x length, y length
     cropped = (cropped/256).astype('uint8') #for plantation 3 color depth
 
     #cropped = crop(rgb0, 3500, 500, 200, 200) #x coord, y coord, x length, y length
@@ -127,6 +146,7 @@ def main():
     mat = manual_as_matrix(y_pred, by_x, by_y) #turn list of predicted classes into the dimensions of the cropped image
     plot_color(mat, by_x, by_y) #plots color representation of predictions on a graph
 
-    get_sapling_indices(mat)
+    coords, i_coords = get_sapling_indices(mat, x, y)
+    mark_saplings(cropped, coords, i_coords, x, y)
 
 main()
