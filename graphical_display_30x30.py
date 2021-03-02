@@ -14,8 +14,8 @@ from scipy import ndimage
 #returns and displays cropped image
 def crop(img, x, y, len_x, len_y):
     cropped = img[y:y+len_y, x:x+len_x] #crops
-    cv2.imshow("cropped", cropped) #shows the cropped section
-    cv2.waitKey(0) #press 0 key to continue processing
+    #cv2.imshow("cropped", cropped) #shows the cropped section
+    #cv2.waitKey(0) #press 0 key to continue processing
     return cropped
 
 #returns 30x30x4 np array of pixels and their rgba values
@@ -91,7 +91,7 @@ def get_sapling_indices(matrix, start_x, start_y):
         #print(matrix[c[0]][c[1]])
     return img_coords, int_coords
 
-def mark_saplings(cropped, mat_coords, i_coords, x, y):
+def mark_saplings(cropped, mat_coords, x, y):
     for c in mat_coords:
         print('(' + str(c[0]-x) + ', ' + str(c[1]-y) + ')')
         image = cv2.circle(cropped, (c[1]-y,c[0]-x), radius=5, color=(0, 0, 255), thickness=-1)
@@ -104,49 +104,85 @@ def main():
     path = "D:/College Documents/Senior Design/Mac_1120_UTM.tif" #"data/plantation1.tif"
     ## Read data
     rgb0 = imread(path)
-    width = 900 #must be divisible by 30 for now
-    height = 900 #must be divisible by 30 for now
-    dim = 30
-    x = 2205
-    y = 3885
-    cropped = crop(rgb0, x, y, width, height) #x coord, y coord, x length, y length
-    cropped = (cropped/256).astype('uint8') #for plantation 3 color depth
 
-    #cropped = crop(rgb0, 3500, 500, 200, 200) #x coord, y coord, x length, y length
-    #og: 3500, 500, 200, 200 //1500, 1500
+    coo = []
 
-    #cropped = np.array(cropped)
-    #print(len(cropped))
-    #print(len(cropped[0]))
-    #print(cropped)
-    print('len of cropped: ' + str(len(cropped)))
-    print('len of cropped[0]: ' + str(len(cropped[0])))
-    print('len of cropped[0][0]: ' + str(len(cropped[0][0])))
-    test = get_rgbs(cropped, dim) #nparray (2x2x4) of rgb in 4 pixel chunks 
-    print(test[0])
-    #print(test[0][0])
-    print('len of test: ' + str(len(test)))
-    print('len of test[0]: ' + str(len(test[0])))
-    #print('len of test[0][0]: ' + str(len(test[0][0])))
+    for itr in range(0, 9):
+        width = 900 #must be divisible by 30 for now
+        height = 900 #must be divisible by 30 for now
+        dim = 30
+        x = 2220
+        y = 3900
 
-    model = keras.models.load_model('model/30x30model.h5') #load model saved from classifier.py
-    #model = keras.models.load_model('model/model_1.h5') #load model saved from classifier.py
-    
+        if itr == 1:
+            x += 15
+        elif itr == 2:
+            x -= 15
+        elif itr == 3:
+            y += 15
+        elif itr == 4:
+            y -= 15
+        elif itr == 5:
+            x += 15
+            y += 15
+        elif itr == 6:
+            x += 15
+            y -= 15
+        elif itr == 7:
+            x -= 15
+            y += 15
+        elif itr == 8:
+            x -= 15
+            y -= 15
 
-    y_pred = model.predict_classes(test) #run classifier on the 4 pixel chunks, returns numerical class prediction for each chunk
-    print(y_pred.shape)
-    np.set_printoptions(threshold=sys.maxsize) #prints the whole np array
-    print(y_pred)
-    print(len(y_pred))
 
-    by_x = int(width/dim)
-    by_y = int(height/dim)
-    print('by_x: ' + str(by_x))
-    print('by_y: ' + str(by_y))
-    mat = manual_as_matrix(y_pred, by_x, by_y) #turn list of predicted classes into the dimensions of the cropped image
-    plot_color(mat, by_x, by_y) #plots color representation of predictions on a graph
+        
+        cropped = crop(rgb0, x, y, width, height) #x coord, y coord, x length, y length
+        cropped = (cropped/256).astype('uint8') #for plantation 3 color depth
 
-    coords, i_coords = get_sapling_indices(mat, x, y)
-    mark_saplings(cropped, coords, i_coords, x, y)
+        #cropped = crop(rgb0, 3500, 500, 200, 200) #x coord, y coord, x length, y length
+        #og: 3500, 500, 200, 200 //1500, 1500
 
+        #cropped = np.array(cropped)
+        #print(len(cropped))
+        #print(len(cropped[0]))
+        #print(cropped)
+        print('len of cropped: ' + str(len(cropped)))
+        print('len of cropped[0]: ' + str(len(cropped[0])))
+        print('len of cropped[0][0]: ' + str(len(cropped[0][0])))
+        test = get_rgbs(cropped, dim) #nparray (2x2x4) of rgb in 4 pixel chunks 
+        print(test[0])
+        #print(test[0][0])
+        print('len of test: ' + str(len(test)))
+        print('len of test[0]: ' + str(len(test[0])))
+        #print('len of test[0][0]: ' + str(len(test[0][0])))
+
+        model = keras.models.load_model('model/30x30model.h5') #load model saved from classifier.py
+        #model = keras.models.load_model('model/model_1.h5') #load model saved from classifier.py
+        
+
+        y_pred = model.predict_classes(test) #run classifier on the 4 pixel chunks, returns numerical class prediction for each chunk
+        print(y_pred.shape)
+        np.set_printoptions(threshold=sys.maxsize) #prints the whole np array
+        print(y_pred)
+        print(len(y_pred))
+
+        by_x = int(width/dim)
+        by_y = int(height/dim)
+        print('by_x: ' + str(by_x))
+        print('by_y: ' + str(by_y))
+        mat = manual_as_matrix(y_pred, by_x, by_y) #turn list of predicted classes into the dimensions of the cropped image
+        #plot_color(mat, by_x, by_y) #plots color representation of predictions on a graph
+
+        coords, i_coords = get_sapling_indices(mat, x, y)
+        for c in coords:
+            coo.append(c)
+        #mark_saplings(cropped, coords, i_coords, x, y)
+    coo = sorted(coo)
+    print(coo)
+    x = 2220
+    y = 3900
+    cropped = crop(rgb0, x-15, y-15, width+30, height+30) #x coord, y coord, x length, y length
+    cropped = (cropped/256).astype('uint8')
+    mark_saplings(cropped, coo, x-15, y-15)
 main()
