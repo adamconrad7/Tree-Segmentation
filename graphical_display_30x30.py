@@ -107,14 +107,20 @@ def main():
 
     coo = []
 
-    for itr in range(0, 9):
-        width = 900 #must be divisible by 30 for now
-        height = 900 #must be divisible by 30 for now
-        dim = 30
-        x = 2220
-        y = 3900
+    width = 900 #must be divisible by 30 for now
+    height = 900 #must be divisible by 30 for now
+    dim = 30
+    x_start = 2220
+    y_start = 3900
 
-        if itr == 1:
+    for itr in range(0, 12):
+        if itr < 6:
+            x = x_start #+ itr
+            y = y_start + ((itr % 6) * 5)
+        else:
+            x = x_start + ((itr % 6) * 5)
+            y = y_start #+ itr
+        '''if itr == 1:
             x += 15
         elif itr == 2:
             x -= 15
@@ -134,7 +140,7 @@ def main():
         elif itr == 8:
             x -= 15
             y -= 15
-
+        '''
 
         
         cropped = crop(rgb0, x, y, width, height) #x coord, y coord, x length, y length
@@ -180,9 +186,8 @@ def main():
         #mark_saplings(cropped, coords, i_coords, x, y)
     coo = sorted(coo)
     print(coo)
-    x = 2220
-    y = 3900
-    cropped = crop(rgb0, x-15, y-15, width+30, height+30) #x coord, y coord, x length, y length
+
+    cropped = crop(rgb0, x_start, y_start, width+30, height+30) #x coord, y coord, x length, y length
     cropped = (cropped/256).astype('uint8')
-    mark_saplings(cropped, coo, x-15, y-15)
+    mark_saplings(cropped, coo, x_start, y_start)
 main()
