@@ -562,52 +562,14 @@ class Segmenter(Data):
         preds = []
         i = 0
         for r in regions:
-            pred = self.get_saps(0, r[0], r[1], r[2], r[2])
+            pred = self.get_saps(0, r[1], r[0], r[2], r[2])
             for coord in pred:
-                x = coord[0] + int((r[0]+r[2]))
-                y = coord[1] + int((r[1]+r[2]))
-
-                nim[int(y):int(y+30), int(x):int(x+30)] = 1
+#                 x = coord[0] + int((r[0]))
+#                 y = coord[1] + int((r[1]))
+                x = coord[0] 
+                y = coord[1]
+                nim[int(y):int(y+80), int(x):int(x+80)] = 1
             if i % 5 == 0:
                 plt.imshow(nim)
                 plt.show()
             i += 1
-                
-            
-#                 get_saps(self, target, x, y, l, h):
-      
-#         for a in ass:
-    
-#             x1 = a[0][1]
-#             y1 = a[0][0]
-#             y1 += 1000
-
-
-#             h = 6000
-#             l = 6000
-
-#             x2 = y1+l
-#             y2 = x1+h
- 
-#             h2 = 3000
-#             l2 = 4000
-      
-#             nim = rect(nim, int((y1+h)), int((x1+l)-4000), 4000, 4000, 50)
-
-
-#             pred = get_saps(2, model, rgb65, data, 32, int((y1+h)), int((x1+l)-4000), 4000, 4000)
-
-#             for coord in pred:
-#         #         x = coord[0] + x1
-#         #         y = coord[1] + y1
-#                 x = coord[0] + int((x1+l)-4000)
-#                 y = coord[1] + int((y1+h))
-
-#                 nim[int(x):int(x+50), int(y):int(y+50)] = 1
-#         #         nim[int(x), int(y)] = 1
-#             break
-
-#         plt.imshow(nim)
-#         plt.show()
-#         # imageio.imwrite('binary_predictions_bottom30'  + '.tif', nim)
-       
